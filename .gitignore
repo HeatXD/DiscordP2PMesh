@@ -13,6 +13,7 @@ bin/
 *.dll
 *.lib
 *.exp
+*.vcxproj.user
 
 # Discord Social SDK is proprietary and must not be redistributed via git.
 # Each developer downloads it from the Discord Developer Portal and drops it
@@ -21,3 +22,7 @@ thirdparty/discord_social_sdk/
 
 # vcpkg manifest-mode build output (restored automatically on build from vcpkg.json).
 vcpkg_installed/
+
+# CMake build directories
+build*/
+out/

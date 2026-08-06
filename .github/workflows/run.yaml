@@ -1,0 +1,23 @@
+name: Main Build & Release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unix:
+    uses: ./.github/workflows/unix.yml
+    secrets: inherit
+
+  windows:
+    uses: ./.github/workflows/windows.yml
+    secrets: inherit
+
+  release:
+    needs: [unix, windows]
+    uses: ./.github/workflows/release.yml

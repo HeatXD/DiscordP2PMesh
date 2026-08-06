@@ -34,29 +34,17 @@
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <PropertyGroup>
-    <VcpkgEnableManifest>true</VcpkgEnableManifest>
-  </PropertyGroup>
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCInstallDir)vcpkg\scripts\buildsystems\msbuild\vcpkg.props" Condition="Exists('$(VCInstallDir)vcpkg\scripts\buildsystems\msbuild\vcpkg.props')" />
-  </ImportGroup>
-  <ImportGroup Label="Shared" >
-  </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-
   <PropertyGroup Label="UserMacros" />
 
   <PropertyGroup>
-    <OutDir>$(SolutionDir)bin\windows\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup>
     <TargetName>discordp2pmesh</TargetName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DiscordSdkDir>$(ProjectDir)thirdparty\discord_social_sdk</DiscordSdkDir>
+    <LibJuiceDir>$(ProjectDir)thirdparty\libjuice</LibJuiceDir>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
@@ -66,57 +54,70 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>DPMESH_EXPORTS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- JUICE_STATIC because libjuice is compiled straight into this DLL. -->
+      <PreprocessorDefinitions>DPMESH_EXPORTS;JUICE_STATIC;NOMINMAX;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include\private;$(SolutionDir)thirdparty\discord_social_sdk\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include\private;$(DiscordSdkDir)\include;$(LibJuiceDir)\include;$(LibJuiceDir)\include\juice;$(LibJuiceDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
        <GenerateDebugInformation>true</GenerateDebugInformation>
+       <AdditionalDependencies>discord_partner_sdk.lib;ws2_32.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <AdditionalLibraryDirectories>$(DiscordSdkDir)\lib\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
        <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <PostBuildEvent>
+       <Command>copy /Y "$(DiscordSdkDir)\bin\release\discord_partner_sdk.dll" "$(OutDir)"</Command>
+       <Message>Copying Discord Social SDK runtime next to the built library</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
-    <Link>
-       <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\discord_social_sdk\lib\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-       <AdditionalDependencies>discord_partner_sdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <PostBuildEvent>
-       <Command>copy /Y "$(SolutionDir)thirdparty\discord_social_sdk\bin\debug\discord_partner_sdk.dll" "$(OutDir)"</Command>
-       <Message>Copying Discord Social SDK runtime (debug) next to the built library</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;RELEASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-       <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\discord_social_sdk\lib\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-       <AdditionalDependencies>discord_partner_sdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <PostBuildEvent>
-       <Command>copy /Y "$(SolutionDir)thirdparty\discord_social_sdk\bin\release\discord_partner_sdk.dll" "$(OutDir)"</Command>
-       <Message>Copying Discord Social SDK runtime (release) next to the built library</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
 
   <ItemGroup>
+    <ClCompile Include="src\discord_p2p_mesh.cpp" />
     <ClCompile Include="src\session.cpp" />
     <ClCompile Include="src\peer_mesh.cpp" />
-    <ClCompile Include="src\discord_p2p_mesh_api.cpp" />
     <ClCompile Include="src\discordpp_impl.cpp" />
+  </ItemGroup>
+  <ItemGroup Label="libjuice">
+    <ClCompile Include="thirdparty\libjuice\src\addr.c" />
+    <ClCompile Include="thirdparty\libjuice\src\agent.c" />
+    <ClCompile Include="thirdparty\libjuice\src\base64.c" />
+    <ClCompile Include="thirdparty\libjuice\src\conn.c" />
+    <ClCompile Include="thirdparty\libjuice\src\conn_mux.c" />
+    <ClCompile Include="thirdparty\libjuice\src\conn_poll.c" />
+    <ClCompile Include="thirdparty\libjuice\src\conn_thread.c" />
+    <ClCompile Include="thirdparty\libjuice\src\const_time.c" />
+    <ClCompile Include="thirdparty\libjuice\src\crc32.c" />
+    <ClCompile Include="thirdparty\libjuice\src\hash.c" />
+    <ClCompile Include="thirdparty\libjuice\src\hmac.c" />
+    <ClCompile Include="thirdparty\libjuice\src\ice.c" />
+    <ClCompile Include="thirdparty\libjuice\src\juice.c" />
+    <ClCompile Include="thirdparty\libjuice\src\log.c" />
+    <ClCompile Include="thirdparty\libjuice\src\random.c" />
+    <ClCompile Include="thirdparty\libjuice\src\server.c" />
+    <ClCompile Include="thirdparty\libjuice\src\stun.c" />
+    <ClCompile Include="thirdparty\libjuice\src\tcp.c" />
+    <ClCompile Include="thirdparty\libjuice\src\timestamp.c" />
+    <ClCompile Include="thirdparty\libjuice\src\turn.c" />
+    <ClCompile Include="thirdparty\libjuice\src\udp.c" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="include\discord_p2p_mesh.h" />
     <ClInclude Include="include\private\session.h" />
     <ClInclude Include="include\private\peer_mesh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCInstallDir)vcpkg\scripts\buildsystems\msbuild\vcpkg.targets" Condition="Exists('$(VCInstallDir)vcpkg\scripts\buildsystems\msbuild\vcpkg.targets')" />
-  </ImportGroup>
 </Project>

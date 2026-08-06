@@ -1,20 +1,10 @@
-// Exercises every function and event type in discord_p2p_mesh.h: login, lobby chat, and a P2P
-// exchange with whoever else joins the same lobby secret. Run two copies to see the P2P side.
-
 #include <discord_p2p_mesh.h>
 
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef _WIN32
 #include <windows.h>
-static void sleep_ms(int ms) { Sleep((DWORD)ms); }
-#else
-#include <unistd.h>
-static void sleep_ms(int ms) { usleep((useconds_t)ms * 1000); }
-#endif
 
 static volatile sig_atomic_t g_should_exit = 0;
 
@@ -47,7 +37,7 @@ int main(int argc, char **argv) {
 	printf("Discord SDK version: %s\n", dpmesh_get_discord_sdk_version());
 	dpmesh_login(session);
 
-	int64_t chat_peer_id = 0; // first peer we've seen in lobby chat, target of the send_to_peer demo
+	int64_t chat_peer_id = 0;
 
 	while (!g_should_exit) {
 		dpmesh_update(session);
@@ -112,7 +102,7 @@ int main(int argc, char **argv) {
 			}
 		}
 
-		sleep_ms(16);
+		Sleep(16);
 	}
 
 	printf("shutting down...\n");

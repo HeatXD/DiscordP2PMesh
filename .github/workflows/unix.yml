@@ -1,0 +1,80 @@
+name: Unix Build
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  build-unix:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        build_type: [static, shared]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Ninja
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            sudo apt-get update && sudo apt-get install -y ninja-build
+          else
+            brew install ninja
+          fi
+          ninja --version
+
+      # The Discord Social SDK is proprietary and cannot be vendored in a public repo, so CI
+      # pulls it from a private mirror. Set the SDK_REPO_TOKEN secret to enable this job.
+      - name: Check SDK access
+        id: sdk
+        env:
+          SDK_TOKEN: ${{ secrets.SDK_REPO_TOKEN }}
+        run: |
+          if [ -z "$SDK_TOKEN" ]; then
+            echo "SDK_REPO_TOKEN is not set, skipping build." >&2
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch Discord Social SDK
+        if: steps.sdk.outputs.available == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: HeatXD/discord-social-sdk
+          token: ${{ secrets.SDK_REPO_TOKEN }}
+          path: .sdk
+
+      - name: Unpack Discord Social SDK
+        if: steps.sdk.outputs.available == 'true'
+        run: unzip -q .sdk/discord_social_sdk.zip -d thirdparty/discord_social_sdk
+
+      - name: Configure
+        if: steps.sdk.outputs.available == 'true'
+        run: |
+          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=${{ matrix.build_type == 'shared' && 'ON' || 'OFF' }}
+
+      - name: Build
+        if: steps.sdk.outputs.available == 'true'
+        run: cmake --build build
+
+      - name: Package
+        if: steps.sdk.outputs.available == 'true'
+        run: |
+          pkg_dir="package/${{ matrix.os }}"
+          mkdir -p "$pkg_dir"/{lib,include}
+          cp -a build/out/. "$pkg_dir/lib/"
+          cp include/discord_p2p_mesh.h "$pkg_dir/include/"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.sdk.outputs.available == 'true'
+        with:
+          name: ${{ matrix.os }}-${{ matrix.build_type }}
+          path: package/

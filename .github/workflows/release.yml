@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: '*'
+          merge-multiple: true
+
+      - name: Generate release tag
+        run: echo "TAG=v$(date +'%Y%m%d%H%M%S')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Verify artifacts
+        run: |
+          echo "Checking artifacts..."
+          ls -R artifacts || true
+          if [ ! "$(find artifacts -type f | wc -l)" -gt 0 ]; then
+            echo "No artifacts found. Failing release job."
+            exit 1
+          fi
+
+      - name: Create packages
+        shell: bash
+        run: |
+          for platform_dir in artifacts/*; do
+            if [ -d "$platform_dir" ] && [ "$(find "$platform_dir" -type f | wc -l)" -gt 0 ]; then
+              pkg_name=$(basename "$platform_dir")
+              mkdir -p "DiscordP2PMesh-$pkg_name"
+              cp -r "$platform_dir/"* "DiscordP2PMesh-$pkg_name/"
+              tar -czf "DiscordP2PMesh-$pkg_name-Release.tar.gz" -C "DiscordP2PMesh-$pkg_name" .
+            fi
+          done
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          files: DiscordP2PMesh-*-Release.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

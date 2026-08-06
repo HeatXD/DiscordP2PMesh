@@ -3,5 +3,7 @@
     <Platform Name="x64" />
   </Configurations>
   <Project Path="DiscordP2PMesh.vcxproj" Id="a1c2f3d4-5e6f-4789-9abc-def012345678" />
-  <Project Path="examples/console/ConsoleExample.vcxproj" Id="b2d3e4f5-6a7b-4890-8bcd-ef0123456789" />
+  <Folder Name="/Examples/">
+    <Project Path="examples/console/ConsoleExample.vcxproj" Id="b2d3e4f5-6a7b-4890-8bcd-ef0123456789" />
+  </Folder>
 </Solution>

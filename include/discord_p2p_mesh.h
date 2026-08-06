@@ -4,14 +4,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(DPMESH_STATIC)
 #ifdef DPMESH_EXPORTS
 #define DPMESH_API __declspec(dllexport)
 #else
 #define DPMESH_API __declspec(dllimport)
 #endif
-#else
+#elif defined(__GNUC__) || defined(__clang__)
 #define DPMESH_API __attribute__((visibility("default")))
+#else
+#define DPMESH_API
 #endif
 
 #ifdef __cplusplus

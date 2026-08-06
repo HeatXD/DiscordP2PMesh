@@ -37,9 +37,8 @@
   <PropertyGroup Label="UserMacros" />
 
   <PropertyGroup>
-    <RepoRoot>$(ProjectDir)..\..\</RepoRoot>
-    <OutDir>$(RepoRoot)bin\windows\$(Configuration)\</OutDir>
-    <IntDir>$(RepoRoot)obj\$(Platform)\$(Configuration)\ConsoleExample\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\ConsoleExample\</IntDir>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
@@ -47,12 +46,11 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(RepoRoot)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
        <GenerateDebugInformation>true</GenerateDebugInformation>
-       <AdditionalDependencies>discordp2pmesh.lib;%(AdditionalDependencies)</AdditionalDependencies>
-       <AdditionalLibraryDirectories>$(RepoRoot)bin\windows\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
 
