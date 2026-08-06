@@ -36,7 +36,6 @@ public:
 	void SendToPeer(int64_t peer_id, const uint8_t *data, size_t size);
 	void HandleSignaling(int64_t from_peer_id, bool is_offer, const std::string &sdp);
 
-	// Applies queued libjuice callbacks. Called from Session::Update().
 	void PumpEvents();
 
 private:

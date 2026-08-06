@@ -19,11 +19,14 @@ extern "C" {
 #endif
 
 // Opaque session handle. One session owns one Discord client connection and its P2P mesh.
+//
+// Not thread-safe: call every dpmesh_* function for a given session from the same thread,
+// the one driving dpmesh_update(). libjuice's own internal callback thread is the exception,
+// already synchronized against internally.
 typedef struct DPMeshSession DPMeshSession;
 
 typedef struct DPMeshConfig {
-	// Discord application (client) ID from the Developer Portal. May be left 0 here and set
-	// later with dpmesh_set_application_id(), as long as it's set before dpmesh_login().
+	// Discord application (client) ID from the Developer Portal. Required.
 	uint64_t application_id;
 
 	// ICE servers used to establish the P2P mesh. stun_server_host may be NULL to disable STUN;
@@ -100,11 +103,9 @@ typedef struct DPMeshEvent {
 	};
 } DPMeshEvent;
 
+// application_id is required in *config; dpmesh_create() fails (returns NULL) without one.
 DPMESH_API DPMeshSession *dpmesh_create(const DPMeshConfig *config);
 DPMESH_API void dpmesh_destroy(DPMeshSession *session);
-
-DPMESH_API void dpmesh_set_application_id(DPMeshSession *session, uint64_t application_id);
-DPMESH_API uint64_t dpmesh_get_application_id(DPMeshSession *session);
 
 // Starts (or re-runs) the Discord OAuth + connect flow. Emits DPMESH_EVENT_READY on success or
 // DPMESH_EVENT_AUTH_FAILED on failure via dpmesh_poll_event(), driven by dpmesh_update().
@@ -122,15 +123,14 @@ DPMESH_API uint64_t dpmesh_get_current_user_id(DPMeshSession *session);
 // Returned pointer is valid until the next call to dpmesh_get_user_display_name() on this session.
 DPMESH_API const char *dpmesh_get_user_display_name(DPMeshSession *session, uint64_t user_id);
 
-DPMESH_API const char *dpmesh_get_greeting(void);
 DPMESH_API const char *dpmesh_get_discord_sdk_version(void);
 
 // Pumps the Discord SDK and P2P mesh, queuing any resulting events. Call once per frame/tick;
 // events from the previous dpmesh_update() call (and any pointers inside them) are invalidated here.
 DPMESH_API void dpmesh_update(DPMeshSession *session);
 
-// Drains one queued event per call. Returns 1 and fills *out_event if one was available,
-// 0 otherwise (out_event is left untouched in that case).
+// Drains one queued event per call, returning 1 and filling *out_event if one was available,
+// 0 otherwise (out_event untouched).
 DPMESH_API int dpmesh_poll_event(DPMeshSession *session, DPMeshEvent *out_event);
 
 #ifdef __cplusplus

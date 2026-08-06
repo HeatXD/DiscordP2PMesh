@@ -42,14 +42,6 @@ Session::Session(const DPMeshConfig *config) :
 	}
 }
 
-void Session::SetApplicationId(uint64_t application_id) {
-	_application_id = application_id;
-}
-
-uint64_t Session::GetApplicationId() const {
-	return _application_id;
-}
-
 bool Session::IsReady() const {
 	return _client.GetStatus() == discordpp::Client::Status::Ready;
 }
@@ -176,9 +168,8 @@ void Session::CreateOrJoinLobby(const std::string &secret) {
 		joined.num_id = lobby_id;
 		QueueEvent(joined);
 
-		// SetLobbyMemberAddedCallback only fires for members added after we start listening, so
-		// members already present when we join would otherwise never be announced to us - only we
-		// would be announced to them. Announce the existing roster the same way to make it symmetric.
+		// SetLobbyMemberAddedCallback only fires for members added after we start listening,
+		// so without this, existing members would never be announced to us, only we to them.
 		std::optional<discordpp::LobbyHandle> lobby = _client.GetLobbyHandle(lobby_id);
 		if (lobby.has_value()) {
 			for (uint64_t member_id : lobby->LobbyMemberIds()) {
@@ -360,10 +351,6 @@ bool Session::PollEvent(DPMeshEvent *out_event) {
 	}
 
 	return true;
-}
-
-std::string GetGreeting() {
-	return "DiscordP2PMesh is alive.";
 }
 
 std::string GetDiscordSdkVersion() {

@@ -68,7 +68,7 @@
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>DPMESH_EXPORTS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)src;$(SolutionDir)thirdparty\discord_social_sdk\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include\private;$(SolutionDir)thirdparty\discord_social_sdk\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
        <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -112,8 +112,8 @@
     <ClCompile Include="src\discord_p2p_mesh_api.cpp" />
     <ClCompile Include="src\discordpp_impl.cpp" />
     <ClInclude Include="include\discord_p2p_mesh.h" />
-    <ClInclude Include="src\session.h" />
-    <ClInclude Include="src\peer_mesh.h" />
+    <ClInclude Include="include\private\session.h" />
+    <ClInclude Include="include\private\peer_mesh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

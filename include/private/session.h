@@ -12,15 +12,11 @@
 
 namespace dpmesh {
 
-// Backs one DPMeshSession handle. Holds the Discord client + P2P mesh and queues DPMeshEvent
-// structs for dpmesh_poll_event() instead of firing callbacks directly, so nothing here ever
-// runs off the caller's own update thread.
+// Backs one DPMeshSession handle. Queues DPMeshEvent structs for dpmesh_poll_event() instead
+// of firing callbacks directly, so nothing here runs off the caller's own update thread.
 class Session {
 public:
 	explicit Session(const DPMeshConfig *config);
-
-	void SetApplicationId(uint64_t application_id);
-	uint64_t GetApplicationId() const;
 
 	void Login();
 	bool IsReady() const;
@@ -37,8 +33,6 @@ public:
 	void Update();
 	bool PollEvent(DPMeshEvent *out_event);
 
-	// Called by PeerMesh; SendSignalingMessage rides the lobby chat, the Queue* calls feed the
-	// same public event queue as everything else.
 	void SendSignalingMessage(int64_t to_peer_id, bool is_offer, const std::string &sdp);
 	void QueuePeerConnected(int64_t peer_id);
 	void QueuePeerDisconnected(int64_t peer_id);
@@ -72,7 +66,6 @@ private:
 	std::string _display_name_scratch;
 };
 
-std::string GetGreeting();
 std::string GetDiscordSdkVersion();
 
 } // namespace dpmesh
