@@ -1,0 +1,23 @@
+.vs/
+x64/
+x86/
+Debug/
+Release/
+obj/
+bin/
+*.obj
+*.pdb
+*.ilk
+*.log
+*.exe
+*.dll
+*.lib
+*.exp
+
+# Discord Social SDK is proprietary and must not be redistributed via git.
+# Each developer downloads it from the Discord Developer Portal and drops it
+# in place; see thirdparty/README.md.
+thirdparty/discord_social_sdk/
+
+# vcpkg manifest-mode build output (restored automatically on build from vcpkg.json).
+vcpkg_installed/
