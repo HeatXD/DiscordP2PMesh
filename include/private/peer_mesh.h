@@ -36,6 +36,10 @@ public:
 	void SendToPeer(int64_t peer_id, const uint8_t *data, size_t size);
 	void HandleSignaling(int64_t from_peer_id, bool is_offer, const std::string &sdp);
 
+	// Tears down the ICE agent for a peer, if one exists. Returns true if it was connected,
+	// so the caller knows whether a disconnect notification is owed.
+	bool RemovePeer(int64_t peer_id);
+
 	void PumpEvents();
 
 private:

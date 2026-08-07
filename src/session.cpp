@@ -115,6 +115,10 @@ void Session::Login() {
 			event.type = DPMESH_EVENT_LOBBY_MEMBER_LEFT;
 			event.num_id = member_id;
 			QueueEvent(std::move(event));
+
+			if (_mesh.RemovePeer((int64_t)member_id)) {
+				QueuePeerDisconnected((int64_t)member_id);
+			}
 		});
 	}
 

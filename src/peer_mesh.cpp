@@ -49,6 +49,18 @@ void PeerMesh::SendToPeer(int64_t peer_id, const uint8_t *data, size_t size) {
 	juice_send(peer.agent.get(), (const char *)data, size);
 }
 
+bool PeerMesh::RemovePeer(int64_t peer_id) {
+	auto it = _peers.find(peer_id);
+	if (it == _peers.end()) {
+		return false;
+	}
+
+	bool was_connected = it->second.connected;
+	std::fprintf(stderr, "[ICE] peer %lld: removed\n", (long long)peer_id);
+	DestroyPeer(it);
+	return was_connected;
+}
+
 PeerMesh::Peer &PeerMesh::GetOrCreatePeer(int64_t peer_id, bool is_offerer) {
 	auto [it, inserted] = _peers.try_emplace(peer_id);
 	Peer &peer = it->second;
