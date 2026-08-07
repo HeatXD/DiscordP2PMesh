@@ -1,16 +1,38 @@
 #include <discord_p2p_mesh.h>
 
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <windows.h>
+#include <atomic>
+#include <chrono>
+#include <csignal>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <vector>
 
-static volatile sig_atomic_t g_should_exit = 0;
+static std::atomic<bool> g_should_exit{ false };
 
-static void HandleSigint(int sig) {
-	(void)sig;
-	g_should_exit = 1;
+static void HandleSigint(int) {
+	g_should_exit = true;
+}
+
+// Reads lines from stdin on its own thread and hands them to the main loop through
+// a small mutex-protected queue, so typing never blocks dpmesh_update().
+static std::mutex g_input_mutex;
+static std::vector<std::string> g_pending_lines;
+
+static void StdinThread() {
+	std::string line;
+	while (std::getline(std::cin, line)) {
+		if (line.empty()) {
+			continue;
+		}
+		std::lock_guard<std::mutex> lock(g_input_mutex);
+		g_pending_lines.push_back(std::move(line));
+	}
 }
 
 int main(int argc, char **argv) {
@@ -18,13 +40,17 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "usage: %s <application_id> [lobby_secret]\n", argv[0]);
 		return 1;
 	}
-	const char *lobby_secret = argc > 2 ? argv[2] : "dpmesh-console-demo";
+	const std::string lobby_secret = argc > 2 ? argv[2] : "dpmesh-console-demo";
 
 	signal(SIGINT, HandleSigint);
 
+	std::thread input_thread(StdinThread);
+	input_thread.detach();
+	printf("Type a message and press Enter to chat in the lobby, or \"/p <message>\" to send it to every connected peer over P2P.\n");
+
 	DPMeshConfig config;
 	memset(&config, 0, sizeof(config));
-	config.application_id = strtoull(argv[1], NULL, 10);
+	config.application_id = strtoull(argv[1], nullptr, 10);
 	config.stun_server_host = "stun.l.google.com";
 	config.stun_server_port = 19302;
 
@@ -37,7 +63,7 @@ int main(int argc, char **argv) {
 	printf("Discord SDK version: %s\n", dpmesh_get_discord_sdk_version());
 	dpmesh_login(session);
 
-	int64_t chat_peer_id = 0;
+	std::vector<int64_t> connected_peers;
 
 	while (!g_should_exit) {
 		dpmesh_update(session);
@@ -49,8 +75,8 @@ int main(int argc, char **argv) {
 					uint64_t user_id = dpmesh_get_current_user_id(session);
 					printf("ready as %s (id %llu, dpmesh_is_ready=%d), joining lobby '%s'\n",
 							dpmesh_get_user_display_name(session, user_id), (unsigned long long)user_id,
-							dpmesh_is_ready(session), lobby_secret);
-					dpmesh_create_or_join_lobby(session, lobby_secret);
+							dpmesh_is_ready(session), lobby_secret.c_str());
+					dpmesh_create_or_join_lobby(session, lobby_secret.c_str());
 					break;
 				}
 				case DPMESH_EVENT_AUTH_FAILED:
@@ -74,24 +100,22 @@ int main(int argc, char **argv) {
 					break;
 				case DPMESH_EVENT_LOBBY_MESSAGE:
 					printf("%s: %s\n", dpmesh_get_user_display_name(session, event.lobby_message.from_user_id), event.lobby_message.text);
-					if (chat_peer_id == 0) {
-						chat_peer_id = (int64_t)event.lobby_message.from_user_id;
-						printf("starting a P2P connection to %s\n", dpmesh_get_user_display_name(session, event.lobby_message.from_user_id));
-						dpmesh_send_to_peer(session, chat_peer_id, (const uint8_t *)"hi", 2); // first call only starts the ICE connection
-					}
 					break;
 				case DPMESH_EVENT_LOBBY_MEMBER_JOINED:
-					printf("%s joined the lobby\n", dpmesh_get_user_display_name(session, event.lobby_member.member_id));
+					printf("%s joined the lobby, starting a P2P connection\n", dpmesh_get_user_display_name(session, event.lobby_member.member_id));
+					dpmesh_send_to_peer(session, (int64_t)event.lobby_member.member_id, (const uint8_t *)"hi", 2); // first call only starts the ICE connection
 					break;
 				case DPMESH_EVENT_LOBBY_MEMBER_LEFT:
 					printf("%s left the lobby\n", dpmesh_get_user_display_name(session, event.lobby_member.member_id));
 					break;
 				case DPMESH_EVENT_PEER_CONNECTED:
-					printf("peer %lld connected, sending a P2P message\n", (long long)event.peer_conn.peer_id);
+					printf("%s connected over P2P, sending a message\n", dpmesh_get_user_display_name(session, (uint64_t)event.peer_conn.peer_id));
+					connected_peers.push_back(event.peer_conn.peer_id);
 					dpmesh_send_to_peer(session, event.peer_conn.peer_id, (const uint8_t *)"hello over P2P", 15);
 					break;
 				case DPMESH_EVENT_PEER_DISCONNECTED:
-					printf("peer %lld disconnected\n", (long long)event.peer_conn.peer_id);
+					printf("%s disconnected\n", dpmesh_get_user_display_name(session, (uint64_t)event.peer_conn.peer_id));
+					connected_peers.erase(std::remove(connected_peers.begin(), connected_peers.end(), event.peer_conn.peer_id), connected_peers.end());
 					break;
 				case DPMESH_EVENT_PEER_DATA:
 					printf("peer %lld sent %zu bytes: %.*s\n", (long long)event.peer_data.peer_id,
@@ -102,7 +126,27 @@ int main(int argc, char **argv) {
 			}
 		}
 
-		Sleep(16);
+		std::vector<std::string> lines;
+		{
+			std::lock_guard<std::mutex> lock(g_input_mutex);
+			lines.swap(g_pending_lines);
+		}
+		for (const std::string &line : lines) {
+			if (line.rfind("/p ", 0) == 0) {
+				if (connected_peers.empty()) {
+					printf("no connected peers yet\n");
+					continue;
+				}
+				const std::string message = line.substr(3);
+				for (int64_t peer_id : connected_peers) {
+					dpmesh_send_to_peer(session, peer_id, (const uint8_t *)message.data(), message.size());
+				}
+			} else {
+				dpmesh_send_lobby_message(session, line.c_str());
+			}
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
 
 	printf("shutting down...\n");
