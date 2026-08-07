@@ -119,5 +119,19 @@
     <ClInclude Include="include\private\session.h" />
     <ClInclude Include="include\private\peer_mesh.h" />
   </ItemGroup>
+  <ItemGroup Label="Solution Items">
+    <None Include="README.md" />
+    <None Include="LICENSE" />
+    <None Include="CMakeLists.txt" />
+    <None Include=".gitignore" />
+    <None Include=".gitmodules" />
+    <None Include="thirdparty\README.md" />
+  </ItemGroup>
+  <ItemGroup Label="CI">
+    <None Include=".github\workflows\run.yaml" />
+    <None Include=".github\workflows\windows.yml" />
+    <None Include=".github\workflows\unix.yml" />
+    <None Include=".github\workflows\release.yml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

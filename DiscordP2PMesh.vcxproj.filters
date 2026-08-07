@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files\libjuice">
+      <UniqueIdentifier>{d6f1a4b5-7e9f-4c2d-b154-4f8eaC3f6b0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Solution Items">
+      <UniqueIdentifier>{a3d8f1e2-4b6c-4f9a-8e2d-1c5b7a9f0d3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CI">
+      <UniqueIdentifier>{b4e9f2f3-5c7d-4a0b-9f3e-2d6c8b0a1e4f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\discord_p2p_mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\session.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\peer_mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\discordpp_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\addr.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\agent.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\base64.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\conn.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\conn_mux.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\conn_poll.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\conn_thread.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\const_time.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\crc32.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\hash.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\hmac.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\ice.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\juice.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\log.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\random.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\server.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\stun.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\tcp.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\timestamp.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\turn.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\libjuice\src\udp.c">
+      <Filter>Source Files\libjuice</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\discord_p2p_mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\private\session.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\private\peer_mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md">
+      <Filter>Solution Items</Filter>
+    </None>
+    <None Include="LICENSE">
+      <Filter>Solution Items</Filter>
+    </None>
+    <None Include="CMakeLists.txt">
+      <Filter>Solution Items</Filter>
+    </None>
+    <None Include=".gitignore">
+      <Filter>Solution Items</Filter>
+    </None>
+    <None Include=".gitmodules">
+      <Filter>Solution Items</Filter>
+    </None>
+    <None Include="thirdparty\README.md">
+      <Filter>Solution Items</Filter>
+    </None>
+    <None Include=".github\workflows\run.yaml">
+      <Filter>CI</Filter>
+    </None>
+    <None Include=".github\workflows\windows.yml">
+      <Filter>CI</Filter>
+    </None>
+    <None Include=".github\workflows\unix.yml">
+      <Filter>CI</Filter>
+    </None>
+    <None Include=".github\workflows\release.yml">
+      <Filter>CI</Filter>
+    </None>
+  </ItemGroup>
+</Project>
