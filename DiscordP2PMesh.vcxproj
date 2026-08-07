@@ -126,6 +126,7 @@
     <None Include=".gitignore" />
     <None Include=".gitmodules" />
     <None Include="thirdparty\README.md" />
+    <None Include="docs\discord_application.md" />
   </ItemGroup>
   <ItemGroup Label="CI">
     <None Include=".github\workflows\run.yaml" />

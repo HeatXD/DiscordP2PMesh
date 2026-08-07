@@ -28,6 +28,7 @@ You drive it through a plain C API. Once two players are connected you get a pee
 
 ## Getting Started
 ### Docs
+- Need a Discord application first? See [`docs/discord_application.md`](docs/discord_application.md)
 - The API lives in a single header: [`include/discord_p2p_mesh.h`](include/discord_p2p_mesh.h)
 - Look at [`examples/console`](examples/console) to see how it all fits together, it exercises every function and event in the API
 

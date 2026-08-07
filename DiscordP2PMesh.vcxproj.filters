@@ -126,6 +126,9 @@
     <None Include="thirdparty\README.md">
       <Filter>Solution Items</Filter>
     </None>
+    <None Include="docs\discord_application.md">
+      <Filter>Solution Items</Filter>
+    </None>
     <None Include=".github\workflows\run.yaml">
       <Filter>CI</Filter>
     </None>
